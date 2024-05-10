@@ -1,17 +1,7 @@
 ﻿using MySocket;
 using MySocketClient.MyControl;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Text.Json; 
-using System.Threading.Tasks;
+using System.Text.Json;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MySocketClient
 {
@@ -24,6 +14,11 @@ namespace MySocketClient
         public List<MesData> Mes { get; set; }
 
         public SocketClient socketClient { get; set; }
+        
+        private delegate void MyDelegateType();
+        MyDelegateType Itemchange = new(() => { });
+        MyDelegateType flowLayoutPanel1Size= new(() => { });
+        //private FormWindowState previousWindowState = FormWindowState.Normal;
         public ChatForm(User user,User userself, List<MesData> data, SocketClient socketClient,int SelfColorArpg,int RefColorArpg)
         {
             this.SelfColorArpg = SelfColorArpg;
@@ -34,7 +29,7 @@ namespace MySocketClient
             this.socketClient = socketClient;
             InitializeComponent();
             this.Text = GetText();
-           
+            
             
             this.Load+=(o,e)=>flowLayoutPanel1.BeginInvoke(() => 
             {
@@ -42,9 +37,34 @@ namespace MySocketClient
                 {
                     AddMesMethod(item,false);
                 }
+                flowLayoutPanel1.AutoScrollPosition = new Point(0, flowLayoutPanel1.DisplayRectangle.Height);
             });
             button1.Click += (o, e) => { SenderMesMethod(); };
-            flowLayoutPanel1.AutoScroll = true; // 启用滚动条
+            flowLayoutPanel1.AutoScroll = true; 
+            flowLayoutPanel1Size += () =>flowLayoutPanel1.Invoke(()=>
+            {
+                var percentage = (float)flowLayoutPanel1.VerticalScroll.Value / flowLayoutPanel1.VerticalScroll.Maximum;
+                flowLayoutPanel1.AutoScroll = false;
+                flowLayoutPanel1.AutoScroll = true;
+                flowLayoutPanel1.VerticalScroll.Value = (int)(percentage * flowLayoutPanel1.VerticalScroll.Maximum);
+                flowLayoutPanel1.PerformLayout();
+            //    //previousWindowState = this.WindowState;
+
+            });
+            this.SizeChanged += (o, e) => test();
+            this.SizeChanged += (o, e) => test2();
+            
+
+        }
+        private void test() 
+        {
+            Itemchange?.Invoke();
+        }
+
+        private void test2()
+        {
+            splitContainer1.SplitterDistance = splitContainer1.Height - 150;
+            flowLayoutPanel1Size?.Invoke();
         }
 
         private string GetText() 
@@ -75,14 +95,13 @@ namespace MySocketClient
             int ItemColor = data.IsSelf ? SelfColorArpg : RefColorArpg;
             ChatMessageShow itemControl = new (data.IsSelf,ItemColor, data.DateTimeText, data.Mes);
             itemControl.PanleWigth = this.splitContainer1.Panel1.Width - SystemInformation.VerticalScrollBarWidth-20;
-            this.Resize += (o, e) =>
+            this.Itemchange += () =>flowLayoutPanel1.Invoke(()=>
             {
-                itemControl.BeginInvoke((MethodInvoker)delegate
+                itemControl.Invoke((MethodInvoker)delegate
                 {
-                    // 更新TileSize以填满ListView的宽度
                     itemControl.PanleWigth = this.flowLayoutPanel1.Width - SystemInformation.VerticalScrollBarWidth-20;
                 });
-            };
+            });
             this.flowLayoutPanel1.Controls.Add(itemControl);
             if(flagAdd) Mes.Add(data);
         }
@@ -107,6 +126,7 @@ namespace MySocketClient
                failAction: (sh, e) => { this.Invoke(() => { MessageBox.Show("服务器异常"); }); }
                 );
             textBox1.Text = string.Empty;
+            flowLayoutPanel1.AutoScrollPosition = new Point(0, flowLayoutPanel1.DisplayRectangle.Height);
         }
     }
 }

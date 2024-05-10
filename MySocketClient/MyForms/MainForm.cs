@@ -64,7 +64,6 @@ namespace MySocketClient
             {
                 listView1.BeginInvoke((MethodInvoker)delegate
                 {
-                    // 更新TileSize以填满ListView的宽度
                     listView1.TileSize = new Size(this.listView1.Width - SystemInformation.VerticalScrollBarWidth - 4, listView1.TileSize.Height);
                 });
             };    

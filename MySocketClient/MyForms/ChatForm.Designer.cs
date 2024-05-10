@@ -94,9 +94,9 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(splitContainer1);
-            MaximizeBox = false;
             MinimumSize = new Size(808, 492);
             Name = "ChatForm";
+            ShowIcon = false;
             Text = "ChatForm";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);

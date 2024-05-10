@@ -92,6 +92,7 @@
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.Control;
             Controls.Add(panel1);
             Margin = new Padding(5, 5, 10, 30);
             Name = "ChatMessageShow";
